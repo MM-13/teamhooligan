@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Game Page Generator | Team Hooligan</title>
+<link rel="stylesheet" href="Assets/css/styles.css">
+<link rel="stylesheet" href="Assets/css/generator.css">
+<script src="Assets/js/game-generator.js" defer></script>
+</head>
+<body>
+<header class="sidebar generator-header">
+	<div class="sidebar-inner">
+		<div class="header-top">
+			<div class="header-logo">
+				<a href="index.html" class="logo-link">
+					<img src="Assets/images/TeamHooligan_Logo.png" alt="Team Hooligan Logo">
+				</a>
+			</div>
+		</div>
+		<nav class="main-nav sidebar-nav" aria-label="Generator navigation">
+			<ul>
+				<li><a href="#form" class="nav-link active">Generator</a></li>
+				<li><a href="#preview" class="nav-link">Preview</a></li>
+				<li><a href="#download" class="nav-link">Download</a></li>
+				<br>
+				<li><a class="nav-link" href="index.html">Back to home</a></li>
+			</ul>
+		</nav>
+	</div>
+</header>
+
+<main class="generator-content generator-page">
+	<section class="page-section generator-section" id="form">
+		<div class="section-inner">
+			<span class="eyebrow">Game Publisher Tool</span>
+			<h1>Create a new game page</h1>
+			<p>Fill in the details and generate a full Team Hooligan game page HTML file. A card preview and copy-ready card snippet are included so you can add the game to the homepage easily.</p>
+			<form id="game-form">
+				<div class="form-grid">
+					<div class="form-group">
+						<label for="game-title">Game title</label>
+						<input id="game-title" name="gameTitle" type="text" placeholder="Bottomless Well" required>
+					</div>
+					<div class="form-group">
+						<label for="game-tagline">Tagline</label>
+						<input id="game-tagline" name="gameTagline" type="text" placeholder="A high-energy action roguelite">
+					</div>
+					<div class="form-group form-full">
+						<label for="game-short-description">Short description</label>
+						<textarea id="game-short-description" name="gameShortDescription" rows="3" placeholder="A quick teaser for the game."></textarea>
+					</div>
+					<div class="form-group form-full">
+						<label for="game-full-description">Full description</label>
+						<textarea id="game-full-description" name="gameFullDescription" rows="6" placeholder="A more detailed overview of the game, its mechanics, world, and feel."></textarea>
+					</div>
+					<div class="form-group">
+						<label for="game-trailer-url">Trailer / YouTube URL</label>
+						<input id="game-trailer-url" name="gameTrailerUrl" type="url" placeholder="https://www.youtube.com/watch?v=...">
+					</div>
+					<div class="form-group">
+						<label for="game-page-file">Page file name</label>
+						<input id="game-page-file" name="gamePageFile" type="text" placeholder="bottomless-well.html">
+						<small>Will be used for the generated file and card link.</small>
+					</div>
+					<div class="form-group checkbox-group">
+						<input id="game-featured" name="gameFeatured" type="checkbox">
+						<label for="game-featured">Featured card</label>
+					</div>
+					<div class="form-group form-full">
+						<label for="screenshot-input">Screenshots</label>
+						<div id="screenshot-dropzone" class="screenshot-dropzone" tabindex="0">
+							<p>Drop screenshot files here or <button type="button" id="screenshot-select-button">browse</button> to add images.</p>
+							<input id="screenshot-input" type="file" accept="image/*" multiple hidden>
+						</div>
+						<div id="screenshot-list" class="screenshot-list" aria-live="polite"></div>
+						<small>Drop as many screenshot files as you want. Files will be embedded in the generated page.</small>
+					</div>
+				</div>
+			</form>
+			<div class="generator-actions" id="download">
+				<button type="button" class="button button-primary" id="generate-button">Generate game page</button>
+				<button type="button" class="button" id="copy-card-button">Copy card HTML</button>
+				<a id="download-link" class="button button-primary" href="#" download="" hidden>Download page HTML</a>
+			</div>
+		</div>
+	</section>
+
+	<section class="page-section generator-section" id="preview">
+		<div class="section-inner">
+			<h2>Card preview</h2>
+			<div id="card-preview" class="card-preview"></div>
+			<div class="snippet-panel">
+				<label for="card-snippet">Copy-ready card snippet</label>
+				<textarea id="card-snippet" readonly rows="8"></textarea>
+			</div>
+		</div>
+	</section>
+</main>
+</body>
+</html>

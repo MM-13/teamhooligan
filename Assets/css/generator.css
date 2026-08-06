@@ -1,0 +1,220 @@
+body {
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, rgba(189, 60, 1, 0.14), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(224, 196, 135, 0.08), transparent 28%),
+        #0c0302;
+}
+
+.generator-content {
+    margin-left: 200px;
+    padding: 32px 32px 60px;
+    max-width: 1200px;
+    margin: 0 auto 60px;
+}
+
+.generator-section {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(224, 196, 135, 0.14);
+    border-radius: 32px;
+    padding: 36px;
+    margin-bottom: 30px;
+    overflow: visible;
+}
+
+.page-section.generator-section {
+    max-height: none !important;
+    overflow: visible !important;
+}
+
+.generator-section .section-inner {
+    width: 100%;
+    overflow: visible;
+}
+
+.generator-section h1,
+.generator-section h2 {
+    color: #f7e5c0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(280px, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.form-full {
+    grid-column: 1 / -1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #e0c487;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid rgba(224, 196, 135, 0.2);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #ffffff;
+    padding: 14px 16px;
+    font: inherit;
+    box-sizing: border-box;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.form-group small {
+    color: rgba(224, 196, 135, 0.8);
+}
+
+.generator-header .header-top {
+    justify-content: center;
+}
+
+.screenshot-dropzone {
+    position: relative;
+    border: 2px dashed rgba(224, 196, 135, 0.35);
+    border-radius: 20px;
+    padding: 22px;
+    min-height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: rgba(255, 255, 255, 0.04);
+    color: #f7e5c0;
+    cursor: pointer;
+}
+
+.screenshot-dropzone p {
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.screenshot-dropzone button {
+    border: none;
+    background: rgba(224, 196, 135, 0.15);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+}
+
+.screenshot-dropzone.drag-over {
+    border-color: #f7e5c0;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.screenshot-list {
+    margin-top: 16px;
+    display: grid;
+    gap: 12px;
+}
+
+.screenshot-list-item {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid rgba(224, 196, 135, 0.15);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.screenshot-list-item img {
+    width: 90px;
+    height: 66px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.screenshot-item-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.screenshot-item-info span {
+    color: #fff;
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.remove-screenshot {
+    border: none;
+    background: rgba(255, 255, 255, 0.08);
+    color: #f7e5c0;
+    padding: 10px 12px;
+    border-radius: 14px;
+    cursor: pointer;
+}
+
+.checkbox-group {
+    align-items: center;
+    flex-direction: row;
+    gap: 12px;
+    grid-column: 1 / -1;
+}
+
+.generator-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.generator-actions button,
+.generator-actions a {
+    min-width: auto;
+}
+
+.card-preview {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+}
+
+.snippet-panel {
+    margin-top: 28px;
+}
+
+.snippet-panel textarea {
+    width: 100%;
+    min-height: 180px;
+    resize: vertical;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+button.button,
+button.button-primary,
+a.button.button-primary {
+    min-width: 180px;
+}
+
+@media (max-width: 900px) {
+    .generator-sidebar-inner {
+        padding: 18px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
