@@ -221,7 +221,7 @@ header {
     margin-left: 200px;
     min-height: 100vh;
     box-sizing: border-box;
-    padding: 40px 32px;
+    padding: 0px 32px;
 }
 
 .page-section {
