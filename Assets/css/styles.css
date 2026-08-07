@@ -372,7 +372,7 @@ header {
 
 .game-card {
     background-color: rgba(255,255,255,0.04);
-    background-size: cover;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     border: 1px solid rgba(224,196,135,0.15);
@@ -485,17 +485,51 @@ header {
     grid-template-columns: 1.1fr 0.9fr;
     gap: 32px;
     align-items: center;
-    min-height: calc(100vh - 150px);
+    min-height: 80dvh;
 }
 
 .contact-copy {
     max-width: 580px;
 }
 
+.contact-right {
+    display: grid;
+    gap: 14px;
+    align-content: center;
+    justify-content: stretch;
+}
+
 .contact-actions {
     display: grid;
-    gap: 24px;
+    gap: 14px;
     align-items: start;
+}
+
+.press-kit-panel {
+    background: rgba(223, 194, 130, 0.068);
+    border: 1px solid rgba(224,196,135,0.18);
+    border-radius: 28px;
+    padding: 28px;
+    display: grid;
+    gap: 16px;
+}
+
+.press-kit-panel p {
+    margin: 0;
+    color: #e0c487;
+    line-height: 1.7;
+}
+
+.button-secondary {
+    background: transparent;
+    color: #e0c487;
+    border: 1px solid #e0c487;
+}
+
+.button-secondary:hover,
+.button-secondary:focus-visible {
+    background: rgba(224,196,135,0.12);
+    transform: translateY(-1px);
 }
 
 .contact-social {
