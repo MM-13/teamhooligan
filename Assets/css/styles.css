@@ -1,12 +1,56 @@
 /* CSS Document */
+:root {
+    /* Colors */
+    --bg-color: #0c0302;
+    --text-color: #ffffff;
+    --sidebar-bg: #190400;
+    --accent: #e0c487;
+    --accent-2: #bd3c01;
+    --eyebrow-color: #f3d992;
+    --label-color: #f7e5c0;
+    --muted-text: #f6f1e7;
+    --video-bg: #000;
+    
+    /* Overlays / shadows */
+    --overlay: rgba(12, 3, 2, 0.35);
+    --shadow: 2px 0 16px rgba(0, 0, 0, 0.45);
+
+    /* Cards & borders */
+    --card-bg: rgba(255,255,255,0.04);
+    --card-border-color: rgba(224,196,135,0.15);
+    --card-border-weak-color: rgba(224,196,135,0.12);
+    --card-overlay-gradient: linear-gradient(135deg, rgba(12, 3, 2, 0.88) 0%, rgba(12, 3, 2, 0.55) 55%, rgba(12, 3, 2, 0.75) 100%);
+
+    /* Hero */
+    --hero-bg-gradient: linear-gradient(135deg, rgba(189,60,1,0.95), rgba(224,196,135,0.15));
+
+    /* Buttons / UI */
+    --pill-radius: 999px;
+    --button-text-color: #ffffff;
+    --button-bg: rgba(255,255,255,0.04);
+    --button-secondary-hover-bg: rgba(224,196,135,0.12);
+
+    /* Layout & sizing */
+    --sidebar-width: 200px;
+    --logo-max-height: 220px;
+    --icon-size: 40px;
+
+    /* Typography */
+    --font-family: Arial, Helvetica, sans-serif;
+    --base-font-size: 1.1rem;
+    --h1-size: 3.5rem;
+    --h2-size: 2.7rem;
+    --h1-mobile-size: 2.8rem;
+}
+
 html {
     scroll-behavior: smooth;
 }
 
 body {
-    background-color: #0c0302;
-    color: #ffffff;
-    font-family: Arial, Helvetica, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
     margin: 0;
     padding: 0;
     overflow-x: hidden;
@@ -17,9 +61,9 @@ header {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 200px;
-    background-color: #190400;
-    box-shadow: 2px 0 16px rgba(0, 0, 0, 0.45);
+    width: var(--sidebar-width);
+    background-color: var(--sidebar-bg);
+    box-shadow: var(--shadow);
     z-index: 1000;
 }
 
@@ -46,7 +90,7 @@ header {
     flex: 0 0 auto;
 
     img {
-        max-height: 220px;
+        max-height: var(--logo-max-height);
         width: auto;
         display: block;
     }
@@ -60,7 +104,7 @@ header {
     height: 48px;
     border: none;
     background: transparent;
-    color: #e0c487;
+    color: var(--accent);
     cursor: pointer;
     padding: 0;
 }
@@ -137,7 +181,7 @@ header {
     }
 
     li {
-        color: #e0c487;
+        color: var(--accent);
         text-transform: uppercase;
         font-weight: bold;
         display: flex;
@@ -146,7 +190,7 @@ header {
     }
 
     a {
-        color: #e0c487;
+        color: var(--accent);
         text-decoration: none;
         font-size: 18px;
         letter-spacing: 0.05em;
@@ -157,24 +201,24 @@ header {
     }
 
     a:hover {
-        color: #bd3c01;
+        color: var(--accent-2);
         transform: scale(1.2);
     }
 
     a.active {
-        color: #bd3c01;
-        border-bottom: 2px solid #bd3c01;
+        color: var(--accent-2);
+        border-bottom: 2px solid var(--accent-2);
         transform: scale(1.2);
     }
 }
 
 .nav-separator {
-    color: #e0c487;
+    color: var(--accent);
     transition: color 0.3s ease;
 }
 
 .nav-separator.separator-active {
-    color: #bd3c01;
+    color: var(--accent-2);
 }
 
 .social-links {
@@ -199,7 +243,7 @@ header {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    color: #e0c487;
+    color: var(--accent);
     text-decoration: none;
     transition: color 0.2s ease, transform 0.2s ease;
 
@@ -213,12 +257,12 @@ header {
 
 .social-icon:hover,
 .social-icon:focus {
-    color: #bd3c01;
+    color: var(--accent-2);
     transform: translateY(-2px);
 }
 
 .content {
-    margin-left: 200px;
+    margin-left: var(--sidebar-width);
     min-height: 100vh;
     box-sizing: border-box;
     padding: 0px 32px;
@@ -253,17 +297,17 @@ header {
 }
 
 .page-section h1 {
-    font-size: 3.5rem;
+    font-size: var(--h1-size);
     line-height: 1.03;
 }
 
 .page-section h2 {
-    font-size: 2.7rem;
-    color: #e0c487;
+    font-size: var(--h2-size);
+    color: var(--accent);
 }
 
 .page-section p {
-    font-size: 1.1rem;
+    font-size: var(--base-font-size);
     line-height: 1.75;
     max-width: 760px;
 }
@@ -272,7 +316,7 @@ header {
     display: inline-block;
     text-transform: uppercase;
     letter-spacing: 0.18em;
-    color: #f3d992;
+    color: var(--eyebrow-color);
     font-size: 0.8rem;
     margin-bottom: 14px;
 }
@@ -282,7 +326,7 @@ header {
     align-items: center;
     justify-content: center;
     padding: 14px 24px;
-    border-radius: 999px;
+    border-radius: var(--pill-radius);
     border: 1px solid transparent;
     font-weight: bold;
     text-decoration: none;
@@ -295,8 +339,8 @@ header {
 }
 
 .button-primary {
-    background-color: #bd3c01;
-    color: #ffffff;
+    background-color: var(--accent-2);
+    color: var(--button-text-color);
 }
 
 .button-large {
@@ -324,7 +368,7 @@ header {
     position: relative;
     min-height: 420px;
     border-radius: 28px;
-    background: linear-gradient(135deg, rgba(189,60,1,0.95), rgba(224,196,135,0.15));
+    background: var(--hero-bg-gradient);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -340,7 +384,7 @@ header {
     content: "";
     position: absolute;
     inset: 0;
-    background: rgba(12, 3, 2, 0.35);
+    background: var(--overlay);
     border-radius: 24px;
 }
 
@@ -371,11 +415,11 @@ header {
 }
 
 .game-card {
-    background-color: rgba(255,255,255,0.04);
+    background-color: var(--card-bg);
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    border: 1px solid rgba(224,196,135,0.15);
+    border: 1px solid var(--card-border-color);
     border-radius: 28px;
     padding: 28px;
     display: flex;
@@ -391,7 +435,7 @@ header {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(12, 3, 2, 0.88) 0%, rgba(12, 3, 2, 0.55) 55%, rgba(12, 3, 2, 0.75) 100%);
+    background: var(--card-overlay-gradient);
     z-index: 0;
     pointer-events: none;
 }
@@ -409,7 +453,7 @@ header {
 .game-card .card-label {
     display: inline-flex;
     margin-bottom: 18px;
-    color: #f7e5c0;
+    color: var(--label-color);
     text-transform: uppercase;
     letter-spacing: 0.18em;
     font-size: 0.75rem;
@@ -423,7 +467,7 @@ header {
 .game-card p {
     margin: 0;
     line-height: 1.7;
-    color: #f6f1e7;
+    color: var(--muted-text);
 }
 
 .about-section {
@@ -444,7 +488,7 @@ header {
 
 .team-card {
     background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(224,196,135,0.12);
+    border: 1px solid var(--card-border-weak-color);
     border-radius: 24px;
     padding: 20px;
     display: grid;
@@ -520,19 +564,19 @@ header {
 
 .press-kit-panel p {
     margin: 0;
-    color: #e0c487;
+    color: var(--accent);
     line-height: 1.7;
 }
 
 .button-secondary {
     background: transparent;
-    color: #e0c487;
+    color: var(--accent);
     border: 1px solid #e0c487;
 }
 
 .button-secondary:hover,
 .button-secondary:focus-visible {
-    background: rgba(224,196,135,0.12);
+    background: var(--button-secondary-hover-bg);
     transform: translateY(-1px);
 }
 
@@ -551,7 +595,7 @@ header {
     border: 1px solid rgba(224,196,135,0.2);
     color: #fff;
     text-decoration: none;
-    background: rgba(255,255,255,0.04);
+    background: var(--button-bg);
     transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
@@ -598,7 +642,7 @@ header {
     }
 
     .hero-copy h1 {
-        font-size: 2.8rem;
+        font-size: var(--h1-mobile-size);
     }
 
     .page-section h2 {
