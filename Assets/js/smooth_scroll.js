@@ -3,6 +3,10 @@ function initSmoothScroll() {
     const menuToggle = document.querySelector('.menu-toggle');
     const sidebarInner = document.querySelector('.sidebar-inner');
     const primaryNav = document.getElementById('primary-nav');
+    const root = document.documentElement;
+    let scrollFrame = null;
+    let previousScrollBehavior = null;
+    let scrollTargetId = null;
 
     function setMenuOpen(isOpen) {
         if (!menuToggle || !sidebarInner || !primaryNav) return;
@@ -23,42 +27,135 @@ function initSmoothScroll() {
         });
     }
 
+    function setActiveNav(sectionId) {
+        let activeLink = null;
+
+        navLinks.forEach(link => {
+            const isActive = link.getAttribute('href') === '#' + sectionId;
+            link.classList.toggle('active', isActive);
+            if (isActive) activeLink = link;
+        });
+
+        document.querySelectorAll('.nav-separator').forEach(separator => {
+            separator.classList.remove('separator-active');
+        });
+
+        const separator = activeLink?.closest('li')?.nextElementSibling;
+        if (separator?.classList.contains('nav-separator')) {
+            separator.classList.add('separator-active');
+        }
+    }
+
+    function stopSmoothScroll() {
+        if (scrollFrame !== null) {
+            cancelAnimationFrame(scrollFrame);
+            scrollFrame = null;
+        }
+
+        if (previousScrollBehavior !== null) {
+            if (previousScrollBehavior) {
+                root.style.scrollBehavior = previousScrollBehavior;
+            } else {
+                root.style.removeProperty('scroll-behavior');
+            }
+            previousScrollBehavior = null;
+        }
+
+        scrollTargetId = null;
+    }
+
+    function scrollToSection(section) {
+        stopSmoothScroll();
+        scrollTargetId = section.id;
+
+        const start = window.scrollY;
+        const maxScroll = Math.max(0, Math.max(root.scrollHeight, document.body.scrollHeight) - window.innerHeight);
+        const destination = Math.min(Math.max(0, start + section.getBoundingClientRect().top), maxScroll);
+        const originalBehavior = root.style.scrollBehavior;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            root.style.scrollBehavior = 'auto';
+            window.scrollTo(0, destination);
+            root.style.scrollBehavior = originalBehavior;
+            scrollTargetId = null;
+            return;
+        }
+
+        previousScrollBehavior = originalBehavior;
+        root.style.scrollBehavior = 'auto';
+        const duration = Math.min(900, Math.max(400, Math.abs(destination - start) * 0.3));
+        const startTime = performance.now();
+
+        function animateScroll(now) {
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = progress < 0.5
+                ? 4 * progress ** 3
+                : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+
+            window.scrollTo(0, start + (destination - start) * eased);
+
+            if (progress < 1) {
+                scrollFrame = requestAnimationFrame(animateScroll);
+                return;
+            }
+
+            const targetId = scrollTargetId;
+            scrollFrame = null;
+            stopSmoothScroll();
+            if (targetId) setActiveNav(targetId);
+        }
+
+        scrollFrame = requestAnimationFrame(animateScroll);
+    }
+
     navLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
+        link.addEventListener('click', event => {
+            event.preventDefault();
             const targetId = link.getAttribute('href')?.substring(1);
-            const targetSection = document.getElementById(targetId);
+            const targetSection = targetId && document.getElementById(targetId);
 
             if (targetSection) {
-                targetSection.scrollIntoView({ behavior: 'smooth' });
+                setActiveNav(targetId);
+                history.pushState(null, '', '#' + targetId);
+                setMenuOpen(false);
+                scrollToSection(targetSection);
+                return;
             }
 
             setMenuOpen(false);
         });
     });
 
+    window.addEventListener('wheel', stopSmoothScroll, { passive: true });
+    window.addEventListener('touchstart', stopSmoothScroll, { passive: true });
+    window.addEventListener('keydown', event => {
+        if (['ArrowDown', 'ArrowUp', 'End', 'Home', 'PageDown', 'PageUp', ' '].includes(event.key)) {
+            stopSmoothScroll();
+        }
+    });
+
+    window.addEventListener('popstate', () => {
+        const target = document.getElementById(window.location.hash.slice(1)) || document.getElementById('Home');
+        setActiveNav(target.id);
+        scrollToSection(target);
+    });
+
     function updateActiveNav() {
+        if (scrollTargetId) {
+            setActiveNav(scrollTargetId);
+            return;
+        }
+
         let currentSection = 'Home';
         const sections = document.querySelectorAll('.page-section');
 
         sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            if (window.scrollY >= sectionTop - 100) {
+            if (section.getBoundingClientRect().top <= 100) {
                 currentSection = section.getAttribute('id');
             }
         });
 
-        navLinks.forEach(link => {
-            link.classList.remove('active');
-            if (link.getAttribute('href') === '#' + currentSection) {
-                link.classList.add('active');
-                document.querySelectorAll('.nav-separator').forEach(sep => sep.classList.remove('separator-active'));
-                const separator = link.closest('li')?.nextElementSibling;
-                if (separator && separator.classList.contains('nav-separator')) {
-                    separator.classList.add('separator-active');
-                }
-            }
-        });
+        setActiveNav(currentSection);
     }
 
     window.addEventListener('scroll', updateActiveNav);

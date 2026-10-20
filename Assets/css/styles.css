@@ -391,8 +391,11 @@ header {
 .hero-media video {
     position: relative;
     border-radius: 24px;
-    width: 200%;
-    height: 200%;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
     z-index: 1;
 }
 
@@ -440,7 +443,7 @@ header {
     border-color: var(--accent);
 }
 
-.game-card[href]:focus-visible {
+.game-card:focus-visible {
     outline: 3px solid var(--accent);
     outline-offset: 4px;
 }
@@ -450,8 +453,10 @@ header {
     position: absolute;
     inset: 0;
     background: var(--card-overlay-gradient);
+    opacity: 0;
     z-index: 0;
     pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
 .game-card > * {
@@ -461,7 +466,47 @@ header {
 
 .game-card.featured {
     grid-column: span 2;
-    min-height: 360px;
+    box-sizing: border-box;
+    aspect-ratio: 460 / 215;
+    min-height: 0;
+}
+
+.game-card h3,
+.game-card p {
+    opacity: 0;
+    transition: opacity 0.24s ease, transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.game-card h3 {
+    transform: translateY(-12px) scale(0.99);
+    transition-duration: 0.2s, 0.32s, 0s;
+}
+
+.game-card p {
+    transform: translateY(18px) scale(0.97);
+    transition-delay: 0.1s;
+}
+
+.game-card:hover::before,
+.game-card:focus-within::before,
+.game-card:focus-visible::before {
+    opacity: 1;
+}
+
+.game-card:hover h3,
+.game-card:hover p,
+.game-card:focus-within h3,
+.game-card:focus-within p,
+.game-card:focus-visible h3,
+.game-card:focus-visible p {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.game-card:hover h3,
+.game-card:focus-within h3,
+.game-card:focus-visible h3 {
+    transition-delay: 0s;
 }
 
 .game-card .card-label {
@@ -663,6 +708,20 @@ header {
         font-size: 2rem;
     }
 
+    .game-card.featured {
+        padding: 10px;
+    }
+
+    .game-card.featured h3 {
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+    }
+
+    .game-card.featured p {
+        font-size: 0.8rem;
+        line-height: 1.3;
+    }
+
     .game-grid,
     .team-grid {
         gap: 18px;
@@ -834,5 +893,10 @@ header {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+
+    .game-card h3,
+    .game-card p {
+        transition-delay: 0s !important;
     }
 }
