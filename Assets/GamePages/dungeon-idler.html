@@ -53,7 +53,7 @@
 				</dl>
 			</div>
 			<figure class="game-key-art">
-				<img src="../Images/DungeonIdler/DungeonIdler_Header.png" alt="Dungeon Idler Capsule art" loading="lazy" decoding="async">
+				<img src="../Images/DungeonIdler/Header_Capsule.png" alt="Dungeon Idler Capsule art" loading="lazy" decoding="async">
 			</figure>
 		</section>
 
@@ -84,7 +84,7 @@
 				<h2 id="trailer-heading">Trailer</h2>
 			</div>
 			<div class="trailer-placeholder" role="note" aria-label="Dungeon Idler trailer">
-				<img src="../Images/DungeonIdler/DungeonIdler_Header.png" alt="Dungeon Idler trailer thumbnail">
+				<img src="../Images/DungeonIdler/Header_Capsule.png" alt="Dungeon Idler trailer thumbnail">
 				<div class="trailer-placeholder-copy">
 					<span class="eyebrow">Trailer</span>
 					<p>Reserved for official game footage</p>
@@ -97,20 +97,16 @@
 				<span class="eyebrow">In-game</span>
 				<h2 id="screenshots-heading">Screenshots</h2>
 			</div>
-			<div class="screenshot-grid">
-				<a class="screenshot-card" href="../Images/DungeonIdler/Screenshots/screens1.jpg" target="_blank" rel="noopener">
-					<img src="../Images/DungeonIdler/Screenshots/screens1.jpg" alt="Dungeon Idler screenshot 01" loading="lazy" decoding="async">
-				</a>
-				<a class="screenshot-card" href="../Images/DungeonIdler/Screenshots/screens2.jpg" target="_blank" rel="noopener">
-					<img src="../Images/DungeonIdler/Screenshots/screens2.jpg" alt="Dungeon Idler screenshot 02" loading="lazy" decoding="async">
-				</a>
-				<a class="screenshot-card" href="../Images/DungeonIdler/Screenshots/screens3.jpg" target="_blank" rel="noopener">
-					<img src="../Images/DungeonIdler/Screenshots/screens3.jpg" alt="Dungeon Idler screenshot 03" loading="lazy" decoding="async">
-				</a>
-				<a class="screenshot-card" href="../Images/DungeonIdler/Screenshots/screens4.jpg" target="_blank" rel="noopener">
-					<img src="../Images/DungeonIdler/Screenshots/screens4.jpg" alt="Dungeon Idler screenshot 04" loading="lazy" decoding="async">
-				</a>
-			</div>
+			<div class="screenshot-grid" data-screenshot-gallery aria-label="Dungeon Idler screenshots"></div>
+			<dialog class="screenshot-lightbox" data-screenshot-viewer aria-label="Screenshot viewer">
+				<button class="lightbox-close" type="button" data-lightbox-close aria-label="Close screenshot viewer">&times;</button>
+				<button class="lightbox-arrow lightbox-previous" type="button" data-lightbox-previous aria-label="Previous screenshot"></button>
+				<figure class="lightbox-figure">
+					<img class="lightbox-image" data-lightbox-image alt="">
+					<figcaption class="lightbox-counter" data-lightbox-counter></figcaption>
+				</figure>
+				<button class="lightbox-arrow lightbox-next" type="button" data-lightbox-next aria-label="Next screenshot"></button>
+			</dialog>
 		</section>
 
 		<section class="game-detail-section game-details-section" aria-labelledby="details-heading">
@@ -133,5 +129,6 @@
 			<a href="../../index.html#Games">&larr; Back to all games</a>
 		</footer>
 	</main>
+	<script src="../js/dungeon-idler-gallery.js" defer></script>
 </body>
 </html>
