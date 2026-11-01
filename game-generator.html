@@ -2,9 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0c0302">
 <title>Game Page Generator | Team Hooligan</title>
 <link rel="stylesheet" href="Assets/css/styles.css">
 <link rel="stylesheet" href="Assets/css/generator.css">
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
 <script src="Assets/js/game-generator.js" defer></script>
 </head>
 <body>
@@ -16,8 +19,12 @@
 					<img src="Assets/images/TeamHooligan_Logo.png" alt="Team Hooligan Logo">
 				</a>
 			</div>
+			<button class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="menu-icon" aria-hidden="true"></span>
+				<span class="visually-hidden">Menu</span>
+			</button>
 		</div>
-		<nav class="main-nav sidebar-nav" aria-label="Generator navigation">
+		<nav id="primary-nav" class="main-nav sidebar-nav" aria-label="Generator navigation" aria-hidden="false">
 			<ul>
 				<li><a href="#form" class="nav-link active">Generator</a></li>
 				<li><a href="#preview" class="nav-link">Preview</a></li>
@@ -34,7 +41,7 @@
 		<div class="section-inner">
 			<span class="eyebrow">Game Publisher Tool</span>
 			<h1>Create a new game page</h1>
-			<p>Fill in the details and generate a full Team Hooligan game page HTML file. A card preview and copy-ready card snippet are included so you can add the game to the homepage easily.</p>
+			<p>Fill in the game details and download a complete page folder with its styles, scripts, artwork, and screenshots. A card preview and copy-ready homepage snippet are included.</p>
 			<form id="game-form">
 				<div class="form-grid">
 					<div class="form-group">
@@ -45,6 +52,34 @@
 						<label for="game-tagline">Tagline</label>
 						<input id="game-tagline" name="gameTagline" type="text" placeholder="A high-energy action roguelite">
 					</div>
+					<div class="form-group">
+						<label for="game-steam-url">Store / primary link</label>
+						<input id="game-steam-url" name="gameSteamUrl" type="url" placeholder="https://store.steampowered.com/...">
+					</div>
+					<div class="form-group">
+						<label for="game-developer">Developer</label>
+						<input id="game-developer" name="gameDeveloper" type="text" value="Team Hooligan">
+					</div>
+					<div class="form-group">
+						<label for="game-publisher">Publisher</label>
+						<input id="game-publisher" name="gamePublisher" type="text" placeholder="Publisher name">
+					</div>
+					<div class="form-group">
+						<label for="game-genre">Genre</label>
+						<input id="game-genre" name="gameGenre" type="text" value="Action, Adventure, Indie">
+					</div>
+					<div class="form-group">
+						<label for="game-players">Players</label>
+						<input id="game-players" name="gamePlayers" type="text" value="Single-player">
+					</div>
+					<div class="form-group">
+						<label for="game-platform">Platform</label>
+						<input id="game-platform" name="gamePlatform" type="text" value="Steam">
+					</div>
+					<div class="form-group">
+						<label for="game-release-date">Release date</label>
+						<input id="game-release-date" name="gameReleaseDate" type="text" value="To be announced">
+					</div>
 					<div class="form-group form-full">
 						<label for="game-short-description">Short description</label>
 						<textarea id="game-short-description" name="gameShortDescription" rows="3" placeholder="A quick teaser for the game."></textarea>
@@ -53,14 +88,34 @@
 						<label for="game-full-description">Full description</label>
 						<textarea id="game-full-description" name="gameFullDescription" rows="6" placeholder="A more detailed overview of the game, its mechanics, world, and feel."></textarea>
 					</div>
+					<div class="form-group form-full">
+						<label for="game-key-art">Key art</label>
+						<input id="game-key-art" name="gameKeyArt" type="file" accept="image/*">
+						<small>Used in the hero and trailer placeholder. If omitted, the first screenshot is used.</small>
+					</div>
 					<div class="form-group">
 						<label for="game-trailer-url">Trailer / YouTube URL</label>
 						<input id="game-trailer-url" name="gameTrailerUrl" type="url" placeholder="https://www.youtube.com/watch?v=...">
 					</div>
 					<div class="form-group">
-						<label for="game-page-file">Page file name</label>
-						<input id="game-page-file" name="gamePageFile" type="text" placeholder="bottomless-well.html">
-						<small>Will be used for the generated file and card link.</small>
+						<label for="game-page-file">Page folder name</label>
+						<input id="game-page-file" name="gamePageFolder" type="text" placeholder="bottomless-well">
+						<small>Used for the downloaded folder and homepage card link.</small>
+					</div>
+					<div class="form-group form-full">
+						<label for="game-feature-1-title">Gameplay point 1</label>
+						<input id="game-feature-1-title" name="feature1Title" type="text" placeholder="Read your enemies">
+						<textarea id="game-feature-1-description" name="feature1Description" rows="2" placeholder="Explain this part of the gameplay."></textarea>
+					</div>
+					<div class="form-group form-full">
+						<label for="game-feature-2-title">Gameplay point 2</label>
+						<input id="game-feature-2-title" name="feature2Title" type="text" placeholder="Choose your route">
+						<textarea id="game-feature-2-description" name="feature2Description" rows="2" placeholder="Explain this part of the gameplay."></textarea>
+					</div>
+					<div class="form-group form-full">
+						<label for="game-feature-3-title">Gameplay point 3</label>
+						<input id="game-feature-3-title" name="feature3Title" type="text" placeholder="Build through failure">
+						<textarea id="game-feature-3-description" name="feature3Description" rows="2" placeholder="Explain this part of the gameplay."></textarea>
 					</div>
 					<div class="form-group checkbox-group">
 						<input id="game-featured" name="gameFeatured" type="checkbox">
@@ -73,15 +128,16 @@
 							<input id="screenshot-input" type="file" accept="image/*" multiple hidden>
 						</div>
 						<div id="screenshot-list" class="screenshot-list" aria-live="polite"></div>
-						<small>Drop as many screenshot files as you want. Files will be embedded in the generated page.</small>
+						<small>Drop as many screenshot files as you want. They will be included in the page folder.</small>
 					</div>
 				</div>
 			</form>
 			<div class="generator-actions" id="download">
-				<button type="button" class="button button-primary" id="generate-button">Generate game page</button>
+				<button type="button" class="button button-primary" id="generate-button">Generate page bundle</button>
 				<button type="button" class="button" id="copy-card-button">Copy card HTML</button>
-				<a id="download-link" class="button button-primary" href="#" download="" hidden>Download page HTML</a>
+				<a id="download-link" class="button button-primary" href="#" download="" hidden>Download page bundle (.zip)</a>
 			</div>
+			<p id="generation-status" class="generation-status" role="status" aria-live="polite"></p>
 		</div>
 	</section>
 

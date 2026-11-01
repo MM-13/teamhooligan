@@ -4,8 +4,16 @@ const taglineInput = document.getElementById('game-tagline');
 const shortDescriptionInput = document.getElementById('game-short-description');
 const fullDescriptionInput = document.getElementById('game-full-description');
 const trailerInput = document.getElementById('game-trailer-url');
+const steamUrlInput = document.getElementById('game-steam-url');
+const developerInput = document.getElementById('game-developer');
+const publisherInput = document.getElementById('game-publisher');
+const genreInput = document.getElementById('game-genre');
+const playersInput = document.getElementById('game-players');
+const platformInput = document.getElementById('game-platform');
+const releaseDateInput = document.getElementById('game-release-date');
 const pageFileInput = document.getElementById('game-page-file');
 const featuredInput = document.getElementById('game-featured');
+const keyArtInput = document.getElementById('game-key-art');
 const screenshotInput = document.getElementById('screenshot-input');
 const screenshotDropzone = document.getElementById('screenshot-dropzone');
 const screenshotList = document.getElementById('screenshot-list');
@@ -14,9 +22,23 @@ const cardSnippet = document.getElementById('card-snippet');
 const generateButton = document.getElementById('generate-button');
 const copyCardButton = document.getElementById('copy-card-button');
 const downloadLink = document.getElementById('download-link');
+const generationStatus = document.getElementById('generation-status');
+const menuToggle = document.querySelector('.menu-toggle');
+const sidebarInner = document.querySelector('.sidebar-inner');
+const primaryNavigation = document.getElementById('primary-nav');
 let currentObjectUrl = null;
 let screenshotFiles = [];
 let screenshotPreviewUrls = [];
+let keyArtFile = null;
+
+if (menuToggle && sidebarInner && primaryNavigation) {
+    menuToggle.addEventListener('click', () => {
+        const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+        menuToggle.setAttribute('aria-expanded', String(!isOpen));
+        primaryNavigation.setAttribute('aria-hidden', String(isOpen));
+        sidebarInner.classList.toggle('menu-open', !isOpen);
+    });
+}
 
 function slugify(value) {
     return value
@@ -26,9 +48,35 @@ function slugify(value) {
         .replace(/(^-|-$)/g, '');
 }
 
-function createFileName(value) {
-    const base = slugify(value) || 'team-hooligan-game';
-    return `${base}.html`;
+function createFolderName(value) {
+    return slugify(value) || 'team-hooligan-game';
+}
+
+function getImageExtension(file) {
+    const knownExtensions = {
+        'image/avif': 'avif',
+        'image/bmp': 'bmp',
+        'image/gif': 'gif',
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/svg+xml': 'svg',
+        'image/webp': 'webp',
+    };
+    if (knownExtensions[file.type]) {
+        return knownExtensions[file.type];
+    }
+
+    const extension = file.name.split('.').pop().toLowerCase();
+    return /^[a-z0-9]{1,8}$/.test(extension) ? extension : 'img';
+}
+
+function getHttpUrl(value) {
+    try {
+        const url = new URL(value.trim());
+        return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+    } catch {
+        return '';
+    }
 }
 
 function escapeHtml(value) {
@@ -55,7 +103,7 @@ function getYouTubeEmbedUrl(url) {
 
 function buildCardHtml(data) {
     const featuredClass = data.featured ? ' featured' : '';
-    const href = escapeHtml(data.pageFileName || '#');
+    const href = escapeHtml(data.pagePath || '#');
     return `<article class="game-card${featuredClass}">
         <h3>${escapeHtml(data.title)}</h3>
         <p>${escapeHtml(data.shortDescription)}</p>
@@ -63,92 +111,165 @@ function buildCardHtml(data) {
     </article>`;
 }
 
-function buildScreenshotCards(urls) {
-    return urls
-        .filter(Boolean)
-        .map((url) => `<figure class="screenshot-card"><img src="${escapeHtml(url)}" alt="Game screenshot"></figure>`)
+function buildGameplaySection(items, description) {
+    const gameplayItems = items
+        .filter((item) => item.title || item.description)
+        .map((item, index) => `<article class="gameplay-item">
+                    <span class="gameplay-index">${String(index + 1).padStart(2, '0')}</span>
+                    <div><h3>${escapeHtml(item.title)}</h3><p>${escapeHtml(item.description)}</p></div>
+                </article>`)
         .join('');
-}
 
-function buildTrailerMarkup(embedUrl) {
-    if (!embedUrl) {
-        return '<div class="hero-media"><span>Trailer placeholder</span></div>';
+    if (!gameplayItems && !description) {
+        return '';
     }
 
-    return `<div class="hero-media video-embed"><iframe src="${escapeHtml(embedUrl)}" title="Game trailer" allowfullscreen loading="lazy"></iframe></div>`;
+    return `<section class="game-detail-section" aria-labelledby="gameplay-heading">
+            <div class="section-heading">
+                <span class="eyebrow">The run</span>
+                <h2 id="gameplay-heading">Learn from every attempt</h2>
+            </div>
+            ${description ? `<p class="gameplay-intro">${escapeHtml(description)}</p>` : ''}
+            ${gameplayItems ? `<div class="gameplay-list">${gameplayItems}</div>` : ''}
+        </section>`;
+}
+
+function buildTrailerMarkup(embedUrl, keyArtPath, title) {
+    if (!embedUrl) {
+        const keyArt = keyArtPath
+            ? `<img src="${escapeHtml(keyArtPath)}" alt="${escapeHtml(title)} artwork">`
+            : '';
+        return `<div class="trailer-placeholder" role="note" aria-label="${escapeHtml(title)} trailer">
+            ${keyArt}
+            <div class="trailer-placeholder-copy">
+                <span class="eyebrow">Trailer</span>
+                <p>Reserved for official game footage</p>
+            </div>
+        </div>`;
+    }
+
+    return `<div class="video-embed"><iframe src="${escapeHtml(embedUrl)}" title="${escapeHtml(title)} trailer" allowfullscreen loading="lazy"></iframe></div>`;
 }
 
 function buildGamePageHtml(data) {
-    const screenshotCards = buildScreenshotCards(data.screenshots);
-    const heroMedia = buildTrailerMarkup(data.trailerEmbedUrl);
+    const gameplaySection = buildGameplaySection(data.gameplay, data.fullDescription);
+    const screenshotSection = data.screenshots.length
+        ? `<section class="game-detail-section" aria-labelledby="screenshots-heading">
+            <div class="section-heading">
+                <span class="eyebrow">In-game</span>
+                <h2 id="screenshots-heading">Screenshots</h2>
+            </div>
+            <div class="screenshot-grid" data-screenshot-gallery aria-label="${escapeHtml(data.title)} screenshots"></div>
+            <script type="application/json" data-screenshot-manifest>${JSON.stringify(data.screenshots).replace(/</g, '\\u003c')}</script>
+            <dialog class="screenshot-lightbox" data-screenshot-viewer aria-label="Screenshot viewer">
+                <button class="lightbox-close" type="button" data-lightbox-close aria-label="Close screenshot viewer">&times;</button>
+                <button class="lightbox-arrow lightbox-previous" type="button" data-lightbox-previous aria-label="Previous screenshot"></button>
+                <figure class="lightbox-figure">
+                    <img class="lightbox-image" data-lightbox-image alt="">
+                    <figcaption class="lightbox-counter" data-lightbox-counter></figcaption>
+                </figure>
+                <button class="lightbox-arrow lightbox-next" type="button" data-lightbox-next aria-label="Next screenshot"></button>
+            </dialog>
+        </section>`
+        : '';
+    const heroImage = data.keyArtPath
+        ? `<figure class="game-key-art"><img src="${escapeHtml(data.keyArtPath)}" alt="${escapeHtml(data.title)} key art" loading="lazy" decoding="async"></figure>`
+        : '';
+    const heroButton = data.storeUrl
+        ? `<a class="button button-primary" href="${escapeHtml(data.storeUrl)}">${escapeHtml(data.storeButtonText)}</a>`
+        : '';
+    const detailsButton = data.storeUrl
+        ? `<a class="button button-primary" href="${escapeHtml(data.storeUrl)}">Visit ${escapeHtml(data.title)} online</a>`
+        : '';
+    const trailerMarkup = buildTrailerMarkup(data.trailerEmbedUrl, data.keyArtPath, data.title);
     return `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="${escapeHtml(data.shortDescription)}">
+<meta name="theme-color" content="#0c0302">
 <title>${escapeHtml(data.title)} | Team Hooligan</title>
-<link rel="stylesheet" href="Assets/css/styles.css">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/game-page.css">
 </head>
 <body>
     <header class="sidebar">
         <div class="sidebar-inner">
             <div class="header-top">
                 <div class="header-logo">
-                    <a href="index.html" class="logo-link">
-                        <img src="Assets/images/TeamHooligan_Logo.png" alt="Team Hooligan Logo">
+                    <a href="../../../index.html" class="logo-link" aria-label="Team Hooligan home">
+                        <img src="images/team-hooligan-logo.png" alt="Team Hooligan">
                     </a>
                 </div>
+                <button class="menu-toggle" aria-controls="primary-nav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="menu-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Menu</span>
+                </button>
             </div>
-            <nav id="primary-nav" class="main-nav sidebar-nav" aria-label="Primary navigation" aria-hidden="true">
+            <nav id="primary-nav" class="main-nav sidebar-nav" aria-label="Primary navigation" aria-hidden="false">
                 <ul>
-                    <li><a href="index.html#Home" class="nav-link">Home</a></li>
+                    <li><a href="../../../index.html">Home</a></li>
                     <li class="nav-separator">|</li>
-                    <li><a href="index.html#Games" class="nav-link">Games</a></li>
+                    <li><a href="../../../index.html#Games">Games</a></li>
                     <li class="nav-separator">|</li>
-                    <li><a href="index.html#About" class="nav-link">About</a></li>
+                    <li><a href="../../../index.html#About">About</a></li>
                     <li class="nav-separator">|</li>
-                    <li><a href="index.html#Contact" class="nav-link">Contact</a></li>
+                    <li><a href="../../../index.html#Contact">Contact</a></li>
                 </ul>
             </nav>
-            <div class="menu-footer">
-                <div class="social-links sidebar-footer">
-                    <a href="#" class="social-icon" aria-label="Steam"></a>
-                    <a href="#" class="social-icon" aria-label="Itch.io"></a>
-                    <a href="#" class="social-icon" aria-label="Discord"></a>
-                    <a href="#" class="social-icon" aria-label="Twitter"></a>
-                    <a href="#" class="social-icon" aria-label="Instagram"></a>
-                    <a href="#" class="social-icon" aria-label="YouTube"></a>
-                </div>
-            </div>
         </div>
     </header>
 
-    <main class="content">
-        <section class="page-section hero-section">
-            <div class="section-inner">
-                <div class="hero-copy">
-                    <span class="eyebrow">${escapeHtml(data.tagline)}</span>
-                    <h1>${escapeHtml(data.title)}</h1>
-                    <p>${escapeHtml(data.shortDescription)}</p>
-                    <div class="hero-cta">
-                        <a href="#screenshots" class="button button-primary">View screenshots</a>
-                    </div>
-                </div>
-                ${heroMedia}
+    <main class="content game-detail-content">
+        <section class="game-detail-hero${data.keyArtPath ? '' : ' game-detail-hero-no-art'}" aria-labelledby="game-title">
+            <div class="game-detail-copy">
+                <span class="eyebrow">${escapeHtml(data.tagline || data.genre)}</span>
+                <h1 id="game-title">${escapeHtml(data.title)}</h1>
+                <p>${escapeHtml(data.shortDescription)}</p>
+                ${heroButton}
+                <dl class="game-facts game-facts-hero">
+                    <div><dt>Players</dt><dd>${escapeHtml(data.players)}</dd></div>
+                    <div><dt>Platform</dt><dd>${escapeHtml(data.platform)}</dd></div>
+                    <div><dt>Release</dt><dd>${escapeHtml(data.releaseDate)}</dd></div>
+                </dl>
             </div>
+            ${heroImage}
         </section>
 
-        <section class="page-section about-section" id="screenshots">
-            <div class="section-inner">
-                <div class="about-intro">
-                    <h2>About the game</h2>
-                    <p>${escapeHtml(data.fullDescription)}</p>
-                </div>
-                <div class="screenshot-grid">
-                    ${screenshotCards}
-                </div>
+        ${gameplaySection}
+
+        <section class="game-detail-section trailer-section" aria-labelledby="trailer-heading">
+            <div class="section-heading">
+                <span class="eyebrow">Media</span>
+                <h2 id="trailer-heading">Trailer</h2>
             </div>
+            ${trailerMarkup}
         </section>
+
+        ${screenshotSection}
+
+        <section class="game-detail-section game-details-section" aria-labelledby="details-heading">
+            <div class="section-heading">
+                <span class="eyebrow">${escapeHtml(data.title)}</span>
+                <h2 id="details-heading">Game details</h2>
+            </div>
+            <dl class="game-facts game-facts-full">
+                <div><dt>Developer</dt><dd>${escapeHtml(data.developer)}</dd></div>
+                <div><dt>Publisher</dt><dd>${escapeHtml(data.publisher)}</dd></div>
+                <div><dt>Genre</dt><dd>${escapeHtml(data.genre)}</dd></div>
+                <div><dt>Players</dt><dd>${escapeHtml(data.players)}</dd></div>
+                <div><dt>Platform</dt><dd>${escapeHtml(data.platform)}</dd></div>
+                <div><dt>Release date</dt><dd>${escapeHtml(data.releaseDate)}</dd></div>
+            </dl>
+            ${detailsButton}
+        </section>
+
+        <footer class="game-detail-footer">
+            <a href="../../../index.html#Games">&larr; Back to all games</a>
+        </footer>
     </main>
+    <script src="js/gallery.js" defer></script>
 </body>
 </html>`;
 }
@@ -182,67 +303,100 @@ function addScreenshotFiles(files) {
     updatePreview();
 }
 
-function readFilesAsDataUrls(files) {
-    return Promise.all(
-        files.map(
-            (file) =>
-                new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = () => reject(new Error('Unable to read file'));
-                    reader.readAsDataURL(file);
-                })
-        )
-    );
+function collectGameData() {
+    const folderName = createFolderName(pageFileInput.value.trim() || titleInput.value);
+    const trailerUrl = getHttpUrl(trailerInput.value);
+    const selectedKeyArt = keyArtFile || screenshotFiles[0] || null;
+    const gameplay = [1, 2, 3].map((number) => ({
+        title: document.getElementById(`game-feature-${number}-title`).value.trim(),
+        description: document.getElementById(`game-feature-${number}-description`).value.trim(),
+    }));
+
+    return {
+        title: titleInput.value.trim() || 'New Game',
+        tagline: taglineInput.value.trim(),
+        shortDescription: shortDescriptionInput.value.trim(),
+        fullDescription: fullDescriptionInput.value.trim(),
+        trailerEmbedUrl: getYouTubeEmbedUrl(trailerUrl),
+        storeUrl: getHttpUrl(steamUrlInput.value),
+        storeButtonText: 'Visit store page',
+        developer: developerInput.value.trim(),
+        publisher: publisherInput.value.trim(),
+        genre: genreInput.value.trim(),
+        players: playersInput.value.trim(),
+        platform: platformInput.value.trim(),
+        releaseDate: releaseDateInput.value.trim(),
+        folderName,
+        pagePath: `Assets/GamePages/${folderName}/index.html`,
+        featured: featuredInput.checked,
+        gameplay,
+        keyArtFile: selectedKeyArt,
+        screenshots: [],
+    };
 }
 
 function updatePreview() {
-    const data = {
-        title: titleInput.value.trim() || 'New Game',
-        tagline: taglineInput.value.trim() || 'Official studio release',
-        shortDescription: shortDescriptionInput.value.trim() || 'A fast, stylish game from Team Hooligan.',
-        fullDescription: fullDescriptionInput.value.trim() || 'Write a longer description here to explain what makes the game unique, its gameplay loop, and what players can expect.',
-        trailerUrl: trailerInput.value.trim(),
-        pageFileName: pageFileInput.value.trim() || createFileName(titleInput.value),
-        featured: featuredInput.checked,
-        screenshots: screenshotFiles.map((file) => file.name),
-    };
-
+    const data = collectGameData();
     const cardHTML = buildCardHtml(data);
     cardPreview.innerHTML = cardHTML;
     cardSnippet.value = cardHTML;
+}
 
-    const embedUrl = getYouTubeEmbedUrl(data.trailerUrl);
-    data.trailerEmbedUrl = embedUrl;
-
-    if (!pageFileInput.value.trim()) {
-        pageFileInput.value = createFileName(titleInput.value);
+async function fetchTemplateText(path) {
+    const response = await fetch(new URL(path, document.baseURI));
+    if (!response.ok) {
+        throw new Error(`Could not load ${path} (${response.status})`);
     }
+    return response.text();
+}
+
+async function fetchTemplateBlob(path) {
+    const response = await fetch(new URL(path, document.baseURI));
+    if (!response.ok) {
+        throw new Error(`Could not load ${path} (${response.status})`);
+    }
+    return response.blob();
 }
 
 async function updateDownloadLink() {
-    const data = {
-        title: titleInput.value.trim() || 'New Game',
-        tagline: taglineInput.value.trim() || 'Official studio release',
-        shortDescription: shortDescriptionInput.value.trim() || 'A fast, stylish game from Team Hooligan.',
-        fullDescription: fullDescriptionInput.value.trim() || 'Write a longer description here to explain what makes the game unique, its gameplay loop, and what players can expect.',
-        trailerUrl: trailerInput.value.trim(),
-        pageFileName: createFileName(pageFileInput.value.trim() || titleInput.value),
-        featured: featuredInput.checked,
-        screenshots: await readFilesAsDataUrls(screenshotFiles),
-    };
-    data.trailerEmbedUrl = getYouTubeEmbedUrl(data.trailerUrl);
+    if (typeof JSZip === 'undefined') {
+        throw new Error('The ZIP library did not load. Check your internet connection and reload the generator.');
+    }
 
-    const html = buildGamePageHtml(data);
-    const blob = new Blob([html], { type: 'text/html' });
+    const data = collectGameData();
+    data.keyArtPath = data.keyArtFile
+        ? `images/key-art.${getImageExtension(data.keyArtFile)}`
+        : '';
+    data.screenshots = screenshotFiles.map((file, index) => {
+        const path = `images/screenshots/screenshot-${String(index + 1).padStart(2, '0')}.${getImageExtension(file)}`;
+        return { src: path, alt: `${data.title} screenshot ${String(index + 1).padStart(2, '0')}`, file };
+    });
+
+    const zip = new JSZip();
+    const pageFolder = zip.folder(data.folderName);
+    const screenshotManifest = data.screenshots.map(({ src, alt }) => ({ src, alt }));
+    const html = buildGamePageHtml({ ...data, screenshots: screenshotManifest });
+
+    pageFolder.file('index.html', html);
+    pageFolder.file('css/styles.css', await fetchTemplateText('Assets/css/styles.css'));
+    pageFolder.file('css/game-page.css', await fetchTemplateText('Assets/GamePages/dungeon-idler.css'));
+    pageFolder.file('js/gallery.js', await fetchTemplateText('Assets/js/dungeon-idler-gallery.js'));
+    pageFolder.file('images/team-hooligan-logo.png', await fetchTemplateBlob('Assets/Images/TeamHooligan_Logo.png'));
+
+    if (data.keyArtFile) {
+        pageFolder.file(data.keyArtPath, data.keyArtFile);
+    }
+    data.screenshots.forEach(({ src, file }) => pageFolder.file(src, file));
+
+    const blob = await zip.generateAsync({ type: 'blob' });
     if (currentObjectUrl) {
         URL.revokeObjectURL(currentObjectUrl);
     }
     currentObjectUrl = URL.createObjectURL(blob);
     downloadLink.href = currentObjectUrl;
-    downloadLink.download = data.pageFileName;
+    downloadLink.download = `${data.folderName}.zip`;
     downloadLink.hidden = false;
-    downloadLink.textContent = `Download ${data.pageFileName}`;
+    downloadLink.textContent = `Download ${data.folderName}.zip`;
 }
 
 function copyCardSnippet() {
@@ -259,6 +413,21 @@ form.addEventListener('input', updatePreview);
 screenshotInput.addEventListener('change', (event) => {
     addScreenshotFiles(event.target.files);
     screenshotInput.value = '';
+});
+
+keyArtInput.addEventListener('change', () => {
+    const file = keyArtInput.files[0];
+    if (!file) {
+        return;
+    }
+    if (!file.type.startsWith('image/')) {
+        generationStatus.textContent = 'Choose an image file for key art.';
+        keyArtInput.value = '';
+        return;
+    }
+    keyArtFile = file;
+    generationStatus.textContent = '';
+    updatePreview();
 });
 
 screenshotDropzone.addEventListener('click', () => screenshotInput.click());
@@ -303,12 +472,23 @@ screenshotList.addEventListener('click', (event) => {
 });
 
 generateButton.addEventListener('click', async () => {
+    generateButton.disabled = true;
     generateButton.textContent = 'Generating...';
-    await updateDownloadLink();
-    generateButton.textContent = 'Ready to download';
-    setTimeout(() => {
-        generateButton.textContent = 'Generate game page';
-    }, 1200);
+    generationStatus.textContent = '';
+    try {
+        await updateDownloadLink();
+        generateButton.textContent = 'Bundle ready';
+        generationStatus.textContent = 'Your page bundle is ready to download.';
+        setTimeout(() => {
+            generateButton.textContent = 'Generate page bundle';
+            generateButton.disabled = false;
+        }, 1200);
+    } catch (error) {
+        console.error(error);
+        generateButton.textContent = 'Generate page bundle';
+        generateButton.disabled = false;
+        generationStatus.textContent = error.message || 'The page bundle could not be created.';
+    }
 });
 
 copyCardButton.addEventListener('click', copyCardSnippet);

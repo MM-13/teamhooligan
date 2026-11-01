@@ -6,10 +6,10 @@ body {
 }
 
 .generator-content {
-    margin-left: 200px;
-    padding: 32px 32px 60px;
-    max-width: 1200px;
-    margin: 0 auto 60px;
+    box-sizing: border-box;
+    width: min(1200px, calc(100% - 264px));
+    margin: 0 32px 60px max(232px, calc((100% + 200px - 1200px) / 2));
+    padding: 32px 0 60px;
 }
 
 .generator-section {
@@ -74,6 +74,10 @@ body {
 .form-group input::placeholder,
 .form-group textarea::placeholder {
     color: rgba(255, 255, 255, 0.55);
+}
+
+.form-group input[type="file"] {
+    cursor: pointer;
 }
 
 .form-group small {
@@ -181,9 +185,18 @@ body {
     margin-top: 24px;
 }
 
+.generation-status {
+    min-height: 1.5em;
+    color: #f7e5c0;
+}
+
 .generator-actions button,
 .generator-actions a {
     min-width: auto;
+}
+
+.generator-actions [hidden] {
+    display: none;
 }
 
 .card-preview {
@@ -210,8 +223,10 @@ a.button.button-primary {
 }
 
 @media (max-width: 900px) {
-    .generator-sidebar-inner {
-        padding: 18px;
+    .generator-content {
+        width: auto;
+        margin: 0;
+        padding: 32px 24px 60px;
     }
 
     .form-grid {

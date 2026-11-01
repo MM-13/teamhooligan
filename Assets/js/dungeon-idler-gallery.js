@@ -1,5 +1,17 @@
 const gallery = document.querySelector('[data-screenshot-gallery]');
 const viewer = document.querySelector('[data-screenshot-viewer]');
+const menuToggle = document.querySelector('.menu-toggle');
+const sidebarInner = document.querySelector('.sidebar-inner');
+const primaryNavigation = document.getElementById('primary-nav');
+
+if (menuToggle && sidebarInner && primaryNavigation) {
+	menuToggle.addEventListener('click', () => {
+		const isOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+		menuToggle.setAttribute('aria-expanded', String(!isOpen));
+		primaryNavigation.setAttribute('aria-hidden', String(isOpen));
+		sidebarInner.classList.toggle('menu-open', !isOpen);
+	});
+}
 
 if (gallery && viewer) {
 	const lightboxImage = viewer.querySelector('[data-lightbox-image]');
@@ -29,6 +41,31 @@ if (gallery && viewer) {
 		lightboxImage.classList.add('is-entering');
 	}
 
+	function appendScreenshot(screenshot, number) {
+		screenshots.push(screenshot);
+
+		const button = document.createElement('button');
+		button.className = 'screenshot-card';
+		button.type = 'button';
+		button.setAttribute('aria-label', `View screenshot ${number}`);
+
+		const thumbnail = new Image();
+		thumbnail.src = screenshot.src;
+		thumbnail.alt = screenshot.alt;
+		thumbnail.loading = 'lazy';
+		thumbnail.decoding = 'async';
+		button.append(thumbnail);
+		button.addEventListener('click', () => {
+			if (isClosing) {
+				return;
+			}
+			showScreenshot(screenshots.indexOf(screenshot));
+			viewer.showModal();
+			requestAnimationFrame(() => viewer.classList.add('is-visible'));
+		});
+		gallery.append(button);
+	}
+
 	function closeViewer() {
 		if (!viewer.open || isClosing) {
 			return;
@@ -43,6 +80,28 @@ if (gallery && viewer) {
 	}
 
 	async function populateGallery() {
+		const manifest = document.querySelector('[data-screenshot-manifest]');
+		if (manifest) {
+			try {
+				const entries = JSON.parse(manifest.textContent);
+				if (Array.isArray(entries)) {
+					for (const entry of entries) {
+						if (!entry || typeof entry.src !== 'string' || !(await loadImage(entry.src))) {
+							continue;
+						}
+						const number = screenshots.length + 1;
+						appendScreenshot({
+							src: entry.src,
+							alt: typeof entry.alt === 'string' ? entry.alt : `Game screenshot ${number}`
+						}, number);
+					}
+					return;
+				}
+			} catch {
+				return;
+			}
+		}
+
 		let number = 1;
 
 		while (true) {
@@ -55,28 +114,7 @@ if (gallery && viewer) {
 				src,
 				alt: `Dungeon Idler screenshot ${String(number).padStart(2, '0')}`
 			};
-			screenshots.push(screenshot);
-
-			const button = document.createElement('button');
-			button.className = 'screenshot-card';
-			button.type = 'button';
-			button.setAttribute('aria-label', `View screenshot ${number}`);
-
-			const thumbnail = new Image();
-			thumbnail.src = screenshot.src;
-			thumbnail.alt = screenshot.alt;
-			thumbnail.loading = 'lazy';
-			thumbnail.decoding = 'async';
-			button.append(thumbnail);
-			button.addEventListener('click', () => {
-				if (isClosing) {
-					return;
-				}
-				showScreenshot(screenshots.indexOf(screenshot));
-				viewer.showModal();
-				requestAnimationFrame(() => viewer.classList.add('is-visible'));
-			});
-			gallery.append(button);
+			appendScreenshot(screenshot, number);
 			number += 1;
 		}
 	}
