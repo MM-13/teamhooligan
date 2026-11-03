@@ -1,0 +1,12 @@
+{
+	"name": "Team Hooligan",
+	"short_name": "Team Hooligan",
+	"description": "Devious games by devious developers.",
+	"start_url": "/",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#0c0302",
+	"theme_color": "#190400",
+	"lang": "en",
+	"icons": []
+}
