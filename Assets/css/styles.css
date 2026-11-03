@@ -567,6 +567,11 @@ header {
 }
 
 @media (max-width: 900px) {
+    .page-section:not(.games-section) {
+        max-height: none;
+        overflow: visible;
+    }
+
     header {
         position: static;
         width: 100%;
@@ -587,6 +592,11 @@ header {
         align-items: center;
         justify-content: space-between;
         gap: 16px;
+    }
+
+    .header-logo img {
+        max-height: 64px;
+        max-width: min(60vw, 240px);
     }
 
     .menu-toggle {
@@ -613,13 +623,15 @@ header {
     }
 
     .sidebar-nav li {
-        justify-content: flex-start;
+        justify-content: center;
+        text-align: center;
     }
 
     .sidebar-nav a {
         display: block;
         width: 100%;
         padding: 12px 14px;
+        text-align: center;
     }
 
     .nav-separator {
@@ -650,7 +662,20 @@ header {
     .hero-section .section-inner {
         gap: 24px;
         padding-top: 40px;
+        padding-bottom: 40px;
+        box-sizing: border-box;
+        height: auto;
         min-height: calc(100vh - 140px);
+    }
+
+    .game-card::before {
+        opacity: 1;
+    }
+
+    .game-card h3,
+    .game-card p {
+        opacity: 1;
+        transform: none;
     }
 
     .hero-media {
@@ -679,6 +704,10 @@ header {
 
     .hero-section .section-inner {
         padding-top: 28px;
+    }
+
+    .hero-media {
+        min-height: 220px;
     }
 
     .hero-copy h1 {
